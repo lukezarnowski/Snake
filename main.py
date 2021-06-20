@@ -10,7 +10,7 @@ pygame.init()
 czarny = (0, 0, 0)
 bialy = (255, 255, 255)
 szary = (200, 200, 200)
-niebieski = (0, 231, 205)
+turkusowy = (0, 231, 205)
 losowy_kolor = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
 # Stworzenie klasy obiektu (pojedynczy "pixel", wykorzystywany pozniej do tworzenia weza, cukierkow oraz kamieni
@@ -27,7 +27,7 @@ class Kwadrat:
         self.os_y = os_y
         self.pos = (self.pos[0] + self.os_x, self.pos[1] + self.os_y)
 
-    # funkcja odpowiadajaca za wizualizacje weza m.in w odpowiednich odsepach boxow
+    # funkcja odpowiadajaca za wizualizacje weza
     liczba_boxow_w_rzedzie = 22
     wymiary_planszy_xy = 500
 
@@ -84,6 +84,7 @@ class Snake:
                         self.os_y = 0
                         self.zmiana_kierunku[self.glowa.pos[:]] = [self.os_x, self.os_y]
 
+        # Fragment dodawnia oraz usuwania boxow weza na ekranie
         for i, c in enumerate(self.cialo):
             p = c.pos[:]
             if p in self.zmiana_kierunku:
@@ -103,6 +104,7 @@ class Snake:
                 else:
                     c.ruch(c.os_x, c.os_y)
 
+    # Ustalenie pozycji poczatkowej weza
     def poczatek(self, pozycja):
         self.glowa = Kwadrat(pozycja)
         self.cialo = []
@@ -132,6 +134,7 @@ class Snake:
                 c.rysuj(powierzchnia)
 
 
+# Fragment odpowiadajacy rysowanie ponowne okna gry w przypadku zjedzenia cukierka. nowy cukierek i kamienie (jesli wybrano opcje) musza sie wygenerowac
 def rysuj_okno_ponownie(powierzchnia):
     global Snake, cukierek, kamienie
     powierzchnia.fill(bialy)
@@ -141,6 +144,7 @@ def rysuj_okno_ponownie(powierzchnia):
         kamien.rysuj(powierzchnia)
     pygame.display.update()
 
+# Fragment odpowiadajacy za losowanie lokalizacji cukierka bedacych pozywieniem dla weza
 def losowanie_cukierka(wymiary_planszy_xy, item):
     positions = item.cialo
     x = wymiary_planszy_xy
@@ -157,6 +161,7 @@ def losowanie_cukierka(wymiary_planszy_xy, item):
 
     return (x, y)
 
+# Fragment odpowiadajacy za losowanie lokalizacji kamieni bedacych przeszkodami dla weza
 def losowanie_kamienia(wymiary_planszy_xy, item_k):
     pozycja_kamien = item_k.cialo
 
@@ -171,7 +176,7 @@ def losowanie_kamienia(wymiary_planszy_xy, item_k):
 
     return (x, y)
 
-
+# Fragment odpowiadajacy za komunikat pojawiajacy na końcu gry, wskazujacy liczbe zjedzonych cukierkow
 def komunikat(wymiary_planszy_xy):
     screen = pygame.display.set_mode((wymiary_planszy_xy, wymiary_planszy_xy))
     GAME_FONT = pygame.freetype.SysFont("monospace", 12)
@@ -190,7 +195,8 @@ def komunikat(wymiary_planszy_xy):
         screen.blit(text_surface2, (40, 80))
         pygame.display.flip()
 
-
+# Fragment odpowiadajacy za komende zmiany liczby kamieni podczas gry, jest to element eksperymentalny
+# Teoretycznie rowniez w tym miejscu, bez komendy, mozna zmienic liczbe generujacych sie kamieni podczas gry
 @click.command(
     help="Gra snake"
 )
@@ -201,6 +207,10 @@ def komunikat(wymiary_planszy_xy):
     help="Liczba kamieni pojawiajacych sie na planszy.",
 )
 
+
+# W funkcji main zdecyduj czy kamienie maja tworzyc sie "co zjedzenie cukierka" czy pozostac przez cala gre w jednym miejscu
+# Fodatkowo wybierz szybkosc gry ("tempo_gry") oraz zdefiniuj wielkosc plansy zmienna "wymiary_planszy_xy" tutaj, oraz w klasie "kwadrat"
+
 def main(liczba_kamieni_click, kamienie_dynamiczne=True):
     global Snake, cukierek, kamienie, text_surface, liczba_kamieni
     liczba_kamieni = liczba_kamieni_click
@@ -209,7 +219,7 @@ def main(liczba_kamieni_click, kamienie_dynamiczne=True):
     tempo_gry = 12
     okno = pygame.display.set_mode((wymiary_planszy_xy, wymiary_planszy_xy))
     Snake = Snake(losowy_kolor, (10, 10))
-    cukierek = Kwadrat(losowanie_cukierka(liczba_boxow_w_rzedzie, Snake), kolor=niebieski)
+    cukierek = Kwadrat(losowanie_cukierka(liczba_boxow_w_rzedzie, Snake), kolor=turkusowy)
     kamienie = [
         Kwadrat(losowanie_kamienia(liczba_boxow_w_rzedzie, Snake), kolor=czarny)
         for _ in range(liczba_kamieni)
@@ -224,7 +234,7 @@ def main(liczba_kamieni_click, kamienie_dynamiczne=True):
         Snake.ruch()
         if Snake.cialo[0].pos == cukierek.pos:
             Snake.dodaj_kwadrat()
-            cukierek = Kwadrat(losowanie_cukierka(liczba_boxow_w_rzedzie, Snake), kolor=niebieski)
+            cukierek = Kwadrat(losowanie_cukierka(liczba_boxow_w_rzedzie, Snake), kolor=turkusowy)
             if kamienie_dynamiczne==True:
                 for kamien in kamienie:
                     kamien.pos = losowanie_kamienia(liczba_boxow_w_rzedzie, Snake)
@@ -236,14 +246,17 @@ def main(liczba_kamieni_click, kamienie_dynamiczne=True):
             if Snake.cialo[x].pos in list(map(lambda z: z.pos, Snake.cialo[x + 1:])):
                 print("Koniec gry", 'Przegrales/as, zacznij jeszcze raz... osiagnięty wynik to: ' + str(len(Snake.cialo) - 1) + ' cukierki/ow')
 
+
+                Snake.poczatek((10, 10))
                 okno.blit(komunikat(wymiary_planszy_xy), (40, 40))
-                Snake.poczatek(losowy_kolor, (10, 10))
 
             elif Snake.cialo[x].pos in (k.pos for k in kamienie):
                 print("Koniec gry", 'Wpadles w kamien i przegrales/as, zacznij jeszcze raz... osiagnięty wynik to: ' + str(len(Snake.cialo) - 1) + ' cukierki/ow')
 
+
+                Snake.poczatek((10, 10))
                 okno.blit(komunikat(wymiary_planszy_xy), (40, 40))
-                Snake.poczatek(losowy_kolor, (10, 10))
+
                 break
 
         rysuj_okno_ponownie(okno)
