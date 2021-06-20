@@ -168,35 +168,6 @@ def losowanie_kamienia(wymiary_planszy_xy, item_k):
 
     return (x, y)
 
-#niestety sposob ograniczony generowania kamieni, niestety mialem duzy problem z generowaniem i wstawianem kamieni z jednej funkcji
-def losowanie_kamienia2(wymiary_planszy_xy, item_k):
-    pozycja_kamien2 = item_k.cialo
-
-    while True:
-        x = random.randrange(wymiary_planszy_xy)
-        y = random.randrange(wymiary_planszy_xy)
-        #zabezpieczenie przed wygenerowaniem kamienia "na" wezu
-        if len(list(filter(lambda z: z.pos == (x, y), pozycja_kamien2))) > 0:
-            continue
-        else:
-            break
-
-    return (x, y)
-
-def losowanie_kamienia3(wymiary_planszy_xy, item_k):
-    pozycja_kamien3 = item_k.cialo
-
-    while True:
-        x = random.randrange(wymiary_planszy_xy)
-        y = random.randrange(wymiary_planszy_xy)
-        #zabezpieczenie przed wygenerowaniem kamienia "na" wezu
-        if len(list(filter(lambda z: z.pos == (x, y), pozycja_kamien3))) > 0:
-            continue
-        else:
-            break
-
-    return (x, y)
-
 def komunikat(wymiary_planszy_xy):
     screen = pygame.display.set_mode((wymiary_planszy_xy, wymiary_planszy_xy))
     GAME_FONT = pygame.freetype.SysFont("monospace", 12)
@@ -230,9 +201,9 @@ def main():
     okno = pygame.display.set_mode((wymiary_planszy_xy, wymiary_planszy_xy))
     snake = snake(losowy_kolor, (10, 10))
     cukierek = kwadrat(losowanie_cukierka(liczba_boxow_w_rzedzie, snake), kolor=losowy_kolor)
-    kamien = kwadrat(losowanie_kamienia(liczba_boxow_w_rzedzie, snake), kolor=(0, 0, 0))
-    kamien2 = kwadrat(losowanie_kamienia(liczba_boxow_w_rzedzie, snake), kolor=(0, 0, 0))
-    kamien3 = kwadrat(losowanie_kamienia(liczba_boxow_w_rzedzie, snake), kolor=(0, 0, 0))
+    kamien = kwadrat(losowanie_kamienia(liczba_boxow_w_rzedzie, snake), kolor=czarny)
+    kamien2 = kwadrat(losowanie_kamienia(liczba_boxow_w_rzedzie, snake), kolor=czarny)
+    kamien3 = kwadrat(losowanie_kamienia(liczba_boxow_w_rzedzie, snake), kolor=czarny)
     gra = True
 
     zegar = pygame.time.Clock()
@@ -244,23 +215,24 @@ def main():
         if snake.cialo[0].pos == cukierek.pos:
             snake.dodaj_kwadrat()
             cukierek = kwadrat(losowanie_cukierka(liczba_boxow_w_rzedzie, snake), kolor=(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
-            kamien = kwadrat(losowanie_kamienia(liczba_boxow_w_rzedzie, snake), kolor=czarny)
-            kamien2 = kwadrat(losowanie_kamienia2(liczba_boxow_w_rzedzie, snake), kolor=czarny)
-            kamien3 = kwadrat(losowanie_kamienia3(liczba_boxow_w_rzedzie, snake), kolor=czarny)
+            #kamien = kwadrat(losowanie_kamienia(liczba_boxow_w_rzedzie, snake), kolor=czarny)
+            #kamien2 = kwadrat(losowanie_kamienia(liczba_boxow_w_rzedzie, snake), kolor=czarny)
+            #kamien3 = kwadrat(losowanie_kamienia(liczba_boxow_w_rzedzie, snake), kolor=czarny)
             print("Twoj aktualny wynik to: " + str(len(snake.cialo) - 1))
+            print(snake.cialo)
 
         for x in range(len(snake.cialo)):
             if snake.cialo[x].pos in list(map(lambda z: z.pos, snake.cialo[x + 1:])):
                 print("Koniec gry", 'Przegrales/as, zacznij jeszcze raz... osiagnięty wynik to: ' + str(len(snake.cialo) - 1) + ' cukierki/ow')
 
                 okno.blit(komunikat(wymiary_planszy_xy), (40, 40))
-                snake.poczatek(losowy_kolor, (10, 10))
+                #snake.poczatek(losowy_kolor, (10, 10))
 
             elif snake.cialo[x].pos == kamien.pos or snake.cialo[x].pos == kamien2.pos or snake.cialo[x].pos == kamien3.pos:
                 print("Koniec gry", 'Wpadles w kamien i przegrales/as, zacznij jeszcze raz... osiagnięty wynik to: ' + str(len(snake.cialo) - 1) + ' cukierki/ow')
 
                 okno.blit(komunikat(wymiary_planszy_xy), (40, 40))
-                snake.poczatek(losowy_kolor, (10, 10))
+                #snake.poczatek(losowy_kolor, (10, 10))
                 break
 
 
