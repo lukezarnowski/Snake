@@ -192,17 +192,18 @@ def komunikat(wymiary_planszy_xy):
 
 
 @click.command(
-    help="Snake game"
+    help="Gra snake"
 )
 @click.option(
-    "--rock_number",
+    "--liczba_kamieni_click",
     type=INT,
     default=3,
-    help="Number of rocks to appear on the board.",
+    help="Liczba kamieni pojawiajacych sie na planszy.",
 )
-def main(rock_number):
+
+def main(liczba_kamieni_click, kamienie_dynamiczne=True):
     global Snake, cukierek, kamienie, text_surface, liczba_kamieni
-    liczba_kamieni = rock_number
+    liczba_kamieni = liczba_kamieni_click
     wymiary_planszy_xy = 500
     liczba_boxow_w_rzedzie = 22
     tempo_gry = 12
@@ -224,8 +225,11 @@ def main(rock_number):
         if Snake.cialo[0].pos == cukierek.pos:
             Snake.dodaj_kwadrat()
             cukierek = Kwadrat(losowanie_cukierka(liczba_boxow_w_rzedzie, Snake), kolor=niebieski)
-            for kamien in kamienie:
-                kamien.pos = losowanie_kamienia(liczba_boxow_w_rzedzie, Snake)
+            if kamienie_dynamiczne==True:
+                for kamien in kamienie:
+                    kamien.pos = losowanie_kamienia(liczba_boxow_w_rzedzie, Snake)
+                else:
+                    continue
             print("Twoj aktualny wynik to: " + str(len(Snake.cialo) - 1))
 
         for x in range(len(Snake.cialo)):
